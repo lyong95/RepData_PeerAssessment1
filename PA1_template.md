@@ -15,6 +15,9 @@ library(tidyverse)
 data<- read.csv("activity.csv")
 
 data$date<- as.Date(data$date)
+
+#set file paths
+file_path <- paste0(getwd(), "/figures")
 ```
 
 ## What is mean total number of steps taken per day?
@@ -31,6 +34,11 @@ ggplot(data_count, aes(x= date, y= total_steps))+
 ```
 
 ![](PA1_template_files/figure-html/histogram of total daily steps-1.png)<!-- -->
+
+```r
+#save the figure
+ggsave("Daily steps histogram.pdf", path = file_path)
+```
 
 
 ```r
@@ -73,6 +81,12 @@ ggplot(data_interval, aes(interval, average_steps))+
 ```
 
 ![](PA1_template_files/figure-html/time series plot for daily activity pattern-1.png)<!-- -->
+
+```r
+#save the figure
+ggsave("Daily activity line graph.pdf", path = file_path)
+```
+
 
 
 ```r
@@ -132,6 +146,12 @@ ggplot(data_new_sum, aes(x= date, y = total_steps))+
 ![](PA1_template_files/figure-html/histogram of total steps with imputed missing valuaes-1.png)<!-- -->
 
 ```r
+#save the figure
+ggsave("Total steps per day histogram.pdf", path = file_path)
+```
+
+
+```r
 #Calculate the mean total number of steps taken per day
 data_new_mean<- data_new %>%  group_by(date) %>%  summarise(new_mean = mean(steps)) 
 
@@ -186,8 +206,7 @@ data_mean_median<-left_join(data_report, data_new_report) %>% print()
 #tidy up the dataset
 data_mean_median<- data_mean_median %>%  gather(key = "stats", value = "value", -date)
 
-#What is the impact of imputing missing data on the estimates of the total daily number of steps?
-
+#Plot a graph to investigate how imputing impacts the mean and median
 ggplot(data_mean_median, aes(x= date, y = value))+
   geom_line(aes(color = stats, linetype = stats))+
   scale_color_manual(values = c("purple", "darkred", "darkgreen", "orange"))
@@ -196,6 +215,10 @@ ggplot(data_mean_median, aes(x= date, y = value))+
 ![](PA1_template_files/figure-html/Missing values question and answer-1.png)<!-- -->
 
 ```r
+#save the figure
+ggsave("Impact of imputing line graph.pdf", path = file_path)
+
+#What is the impact of imputing missing data on the estimates of the total daily number of steps?
 cat(paste0("Imputing the data decreased the median."))
 ```
 
@@ -203,6 +226,7 @@ cat(paste0("Imputing the data decreased the median."))
 ## Imputing the data decreased the median.
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
+
 
 ```r
 #Create a new factor variable in the dataset with two levels – “weekday” and “weekend”
@@ -226,13 +250,18 @@ print(head(data_new))
 
 ```r
 #calculate sum of steps per interval for both weekends and weekdays
- data_new_sum<-aggregate(steps~weekday+interval, data = data_new, sum)
+ data_new_mean<-aggregate(steps~weekday+interval, data = data_new, mean)
 
 #Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
-ggplot(data_new_sum, aes(interval, steps))+
+ggplot(data_new_mean, aes(interval, steps))+
   geom_line()+
   facet_grid(~weekday)+
   labs(x = "time intervals(minutes)", y = "Average daily steps", title = "Daily Activity Pattern")
 ```
 
 ![](PA1_template_files/figure-html/plot time series for weekday and weekend activity-1.png)<!-- -->
+
+```r
+#save the figure
+ggsave("average steps weekday vs weekendline graph.pdf", path = file_path)
+```
